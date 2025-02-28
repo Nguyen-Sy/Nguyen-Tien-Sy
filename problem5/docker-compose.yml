@@ -1,0 +1,41 @@
+services:
+  application:
+    container_name: application
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "4000:${PORT}"
+    volumes:
+      - ./logs:/app/logs
+    environment:
+      - NODE_ENV=${NODE_ENV}
+    depends_on:
+      - mongo
+      - redis
+    networks:
+      - problem5
+  
+  mongo:
+    container_name: mongo
+    image: mongo:4.4
+    restart: unless-stopped
+    volumes:
+      - ./data/mongo:/data/db
+    networks:
+      - problem5
+
+  redis:
+    container_name: redis
+    image: redis:7.4-alpine
+    restart: always
+    command: redis-server --save 20 1 --loglevel warning
+    privileged: true
+    volumes:
+      - ./data/redis/data:/data
+    networks:
+      - problem5
+
+networks:
+  problem5:
+    driver: bridge  
